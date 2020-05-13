@@ -73,8 +73,11 @@ class VenueForm(Form):
         ],
     )
     address = StringField("address", validators=[DataRequired()])
+
     phone = StringField("phone")
-    image_link = StringField("image_link")
+
+    image_link = StringField("image_link", validators=[DataRequired()])
+
     genres = SelectMultipleField(
         # TODO implement enum restriction
         "genres",
