@@ -112,7 +112,9 @@ def venues():
     # TODO: replace with real venues data.
     #       num_shows should be aggregated based on number of upcoming shows per venue.
 
-    data = Venue.query.group_by(Venue.id, Venue.city, Venue.state).all()
+    venues = Venue.query.all()
+    print(venues)
+    data = [{"city": venues.city.name, "venues": venues}]
 
     return render_template("pages/venues.html", areas=data)
 
