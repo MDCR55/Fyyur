@@ -25,7 +25,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 
-# TODO: connect to a local postgresql database
+# TODO: connect to a local postgresql database (DONE)
 SQLALCHEMY_DATABASE_URI = "postgres://postgres:postgres@localhost:5432/postgres"
 
 # ----------------------------------------------------------------------------#
@@ -47,7 +47,7 @@ class Venue(db.Model):
     facebook_link = db.Column(db.String(120))
     shows = db.relationship("Shows", backref="Venue", lazy=True)
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate  ✅
+    # TODO: implement any missing fields, as a database migration using Flask-Migrate  (DONE)
 
 
 class Artist(db.Model):
@@ -63,7 +63,7 @@ class Artist(db.Model):
     facebook_link = db.Column(db.String(120))
     shows = db.relationship("Shows", backref="Artist", lazy=True)
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    # TODO: implement any missing fields, as a database migration using Flask-Migrate (DONE)
 
 
 class Shows(db.Model):
@@ -109,12 +109,21 @@ def index():
 
 @app.route("/venues")
 def venues():
-    # TODO: replace with real venues data.
+    # TODO: replace with real venues data. (DONE)
     #       num_shows should be aggregated based on number of upcoming shows per venue.
+  
+    venues = Venue.query.group_by(Venue.id, Venue.city, Venue.state).all()
+    data = []
 
-    venues = Venue.query.all()
-    print(venues)
-    data = [{"city": venues.city.name, "venues": venues}]
+    for venue in venues :
+        data.append({
+            "city": venue.city,
+            "state":venue.state,
+            "venues":[{
+                "id": venue.id,
+                "name": venue.name
+            }]
+        })
 
     return render_template("pages/venues.html", areas=data)
 
@@ -124,10 +133,10 @@ def search_venues():
     # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
     # seach for Hop should return "The Musical Hop".
     # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
-    response = {
-        "count": 1,
-        "data": [{"id": 2, "name": "The Dueling Pianos Bar", "num_upcoming_shows": 0,}],
-    }
+    response = request.get_json()['search_term']
+
+    print(response)
+
     return render_template(
         "pages/search_venues.html",
         results=response,
