@@ -218,5 +218,17 @@ class ArtistForm(Form):
         validators=[URL(), DataRequired()],
     )
 
+    # new fields
+    website = StringField("website", validators=[URL()])
+
+    seeking_venue = SelectField('seeking_venue',
+        choices=[
+            ('Yes', 'Yes'),
+            ('No', 'No')
+        ]
+    )
+
+    seeking_description = TextAreaField('seeking_description')
+
 
 # TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM
