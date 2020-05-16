@@ -9,6 +9,7 @@ from flask import Flask, render_template, request, Response, flash, redirect, ur
 from flask_migrate import Migrate
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.dialects.postgresql import ARRAY
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
@@ -42,7 +43,10 @@ class Venue(db.Model):
     state = db.Column(db.String(120))
     address = db.Column(db.String(120))
     phone = db.Column(db.String(120))
-    genres = db.Column(db.String(120))
+    genres = db.Column(ARRAY(db.String(120)))
+    website = db.Column(db.String(120))
+    seeking_talent = db.Column(db.String())
+    seeking_description = db.Column(db.String())
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     shows = db.relationship("Shows", backref="Venue", lazy=True)
@@ -131,11 +135,23 @@ def venues():
 @app.route("/venues/search", methods=["POST"])
 def search_venues():
     # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
-    # seach for Hop should return "The Musical Hop".
-    # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
-    response = request.get_json()['search_term']
+    # seach for Hop should return "The Musical Hop". (DONE)
+    # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee" (DONE)
+    response = request.form.get('search_term', '')
+    venues = db.session.query(Venue).filter(Venue.name.ilike('%' + response + '%')).all()
+    results = []
+    
+    for v in venues:
+        print(v.name)
+        results.append({
+                'id': v.id,
+                'name' : v.name
+        })
 
-    print(response)
+    response={
+        "count": len(results),
+        "data": results
+    }
 
     return render_template(
         "pages/search_venues.html",
@@ -147,7 +163,38 @@ def search_venues():
 @app.route("/venues/<int:venue_id>")
 def show_venue(venue_id):
     # shows the venue page with the given venue_id
+
+    result = db.session.query(Venue).filter(Venue.id == venue_id)
+    result = result[0]
+
     # TODO: replace with real venue data from the venues table, using venue_id
+
+    resdata = {
+        "id": result.id,
+        "name": result.name,
+        "genres": result.genres,
+        "address": result.address,
+        "city": result.city,
+        "state": result.state,
+        "phone": result.phone,
+        "website": result.website,
+        "facebook_link": result.facebook_link,
+        "seeking_talent": result.seeking_talent,
+        "seeking_description": "We are on the lookout for a local artist to play every two weeks. Please call us.",
+        "image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
+        "past_shows": [
+            {
+                "artist_id": 4,
+                "artist_name": "Guns N Petals",
+                "artist_image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
+                "start_time": "2019-05-21T21:30:00.000Z",
+            }
+        ],
+        "upcoming_shows": [],
+        "past_shows_count": 1,
+        "upcoming_shows_count": 0,
+    }
+    
     data1 = {
         "id": 1,
         "name": "The Musical Hop",
