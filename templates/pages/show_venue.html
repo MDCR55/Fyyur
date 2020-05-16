@@ -75,5 +75,21 @@
 	</div>
 </section>
 
+<form action="DELETE">
+
+	<input id="deleteBtn" type="button" value="Delete this venue" data-id="{{venue.id}}">
+
+</form>
+
+<script>
+	const deleteBtn = document.getElementById('deleteBtn');
+	deleteBtn.onclick = function(e){
+		const id = e.target.dataset['id'];
+		fetch('/venues/' + id, {
+		  method: 'DELETE'
+		})
+	}
+	</script>
+
 {% endblock %}
 

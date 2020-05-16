@@ -173,7 +173,7 @@ def show_venue(venue_id):
     result = db.session.query(Venue).filter(Venue.id == venue_id)
     result = result[0]
 
-    # TODO: replace with real venue data from the venues table, using venue_id 
+    # TODO: replace with real venue data from the venues table, using venue_id (DONE)
 
     resdata = {
         "id": result.id,
@@ -267,9 +267,20 @@ def delete_venue(venue_id):
     # TODO: Complete this endpoint for taking a venue_id, and using
     # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
 
+    try:
+        print(venue_id)
+        result = db.session.query.filter_by(id=venue_id).delete()
+        db.session.commit()
+
+    except:
+            flash("An error occurred. Venue " + result.name + " could not be deleted.")
+            db.session.rollback()
+    finally:
+            db.session.close()
+
     # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
     # clicking that button delete it from the db then redirect the user to the homepage
-    return None
+    return redirect(url_for('venues'))
 
 
 #  Artists
@@ -279,8 +290,15 @@ def delete_venue(venue_id):
 @app.route("/artists")
 def artists():
     # TODO: replace with real data returned from querying the database (DONE)
+    artists = Artist.query.group_by(Artist.id, Artist.name).all()
 
-    data = Artist.query.group_by(Artist.id, Artist.name).all()
+    data = []
+
+    for a in artists :
+        data.append({
+            'id' : a.id,
+            'name' : a.name
+        })
 
     return render_template("pages/artists.html", artists=data)
 
@@ -426,14 +444,17 @@ def create_artist_submission():
     # TODO: modify data to be the data object returned from db insertion
 
     try:
-        name = request.form.get("name")
-        city = request.form.get("city")
-        state = request.form.get("state")
-        phone = request.form.get("phone")
-        imageLink = request.form.get("image_link")
-        genres = request.form.get("genres")
-        facebookLink = request.form.get("facebook_link")
-
+        name                = request.form.get("name")
+        city                = request.form.get("city")
+        state               = request.form.get("state")
+        phone               = request.form.get("phone")
+        imageLink           = request.form.get("image_link")
+        genres              = request.form.get("genres")
+        facebookLink        = request.form.get("facebook_link")
+        website             = request.form.get("website")
+        seeking_venue       = request.form.get("seeking_venue")
+        seeking_description = request.form.get("seeking_description")
+        
         artist_to_add = Artist(
             name=name,
             city=city,
@@ -442,6 +463,9 @@ def create_artist_submission():
             image_link=imageLink,
             genres=genres,
             facebook_link=facebookLink,
+            website=website,
+            seeking_venue=seeking_venue,
+            seeking_description=seeking_description,
         )
 
         db.session.add(artist_to_add)
@@ -451,7 +475,7 @@ def create_artist_submission():
         flash("Artist " + request.form["name"] + " was successfully listed!")
 
     except:
-        flash("An error occurred. Artist " + data.name + " could not be listed.")
+        flash("An error occurred. Artist " + name + " could not be listed.")
         db.session.rollback()
     finally:
         db.session.close()
