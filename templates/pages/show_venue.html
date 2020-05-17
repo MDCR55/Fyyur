@@ -75,11 +75,8 @@
 	</div>
 </section>
 
-<form action="DELETE">
-
-	<input id="deleteBtn" type="button" value="Delete this venue" data-id="{{venue.id}}">
-
-</form>
+<button class="btn btn-danger" id="deleteBtn" type="button"  data-id="{{venue.id}}"> Delete venue </button>
+<button class="btn btn-default" id="editBtn" type="button" data-id="{{venue.id}}"> Edit venue </button>
 
 <script>
 	const deleteBtn = document.getElementById('deleteBtn');
@@ -89,7 +86,15 @@
 		  method: 'DELETE'
 		})
 	}
-	</script>
+</script>
+
+<script>
+	const editBtn = document.getElementById('editBtn');
+	editBtn.onclick = function(e){
+		const id = e.target.dataset['id'];
+		location.href = '/venues/' + id + '/edit'
+	}
+</script>
 
 {% endblock %}
 

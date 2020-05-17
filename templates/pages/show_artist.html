@@ -72,5 +72,28 @@
 	</div>
 </section>
 
+<button class="btn btn-danger" id="deleteBtn" type="button" data-id="{{artist.id}}"> Delete artist </button>
+<button class="btn btn-default" id="editBtn" type="button"  data-id="{{artist.id}}"> Edit artist </button>
+
+<script>
+	const deleteBtn = document.getElementById('deleteBtn');
+	deleteBtn.onclick = function(e){
+		const id = e.target.dataset['id'];
+		fetch('/artist/' + id, {
+		  method: 'DELETE'
+		})
+		window.location.href = "/";
+	}
+</script>
+
+<script>
+	const editBtn = document.getElementById('editBtn');
+	editBtn.onclick = function(e){
+		const id = e.target.dataset['id'];
+		location.href = '/artist/' + id + '/edit'
+	}
+</script>
+
 {% endblock %}
+
 
