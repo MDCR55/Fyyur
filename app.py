@@ -12,6 +12,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.dialects.postgresql import JSON
 import logging
+from datetime import date
 from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *  
@@ -51,7 +52,7 @@ class Venue(db.Model):
     seeking_description = db.Column(db.String())
     image_link          = db.Column(db.String(500))
     facebook_link       = db.Column(db.String(120))
-    shows = db.relationship("Shows", backref="Venue", lazy=True)
+    shows = db.relationship("Shows", backref="Venue", cascade="all,delete", lazy=True)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate  (DONE)
 
@@ -70,7 +71,7 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String())
     image_link          = db.Column(db.String(500))
     facebook_link       = db.Column(db.String(120))
-    shows               = db.relationship("Shows", backref="Artist", lazy=True)
+    shows               = db.relationship("Shows", backref="Artist", cascade="all,delete", lazy=True)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate (DONE)
 
@@ -81,7 +82,7 @@ class Shows(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     artist_id   = db.Column(db.Integer, db.ForeignKey("Artist.id"))
     venue_id    = db.Column(db.Integer, db.ForeignKey("Venue.id"))
-    start_time  = db.Column(db.DateTime())
+    start_time  = db.Column(db.DateTime)
 
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
@@ -174,8 +175,16 @@ def show_venue(venue_id):
     result = db.session.query(Venue).filter(Venue.id == venue_id)
     result = result[0]
 
+    past_shows_count = 0
+    upcoming_shows_count = 0
+
+    past_shows = []
+
+    print(datetime.now())
+    upcoming_shows = db.session.query(Shows).join(Artist).filter(Shows.venue_id==venue_id).filter(Shows.start_time > datetime.now()).all()
+    
+
     # TODO: replace with real venue data from the venues table, using venue_id (DONE)
-    print(result.genres)
     resdata = {
         "id": result.id,
         "name": result.name,
@@ -189,17 +198,10 @@ def show_venue(venue_id):
         "seeking_talent": result.seeking_talent,
         "seeking_description": result.seeking_description,
         "image_link": result.image_link,
-        "past_shows": [
-            {
-                "artist_id": 4,
-                "artist_name": "Guns N Petals",
-                "artist_image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
-                "start_time": "2019-05-21T21:30:00.000Z",
-            }
-        ],
-        "upcoming_shows": [],
-        "past_shows_count": 1,
-        "upcoming_shows_count": 0,
+        "past_shows": past_shows,
+        "upcoming_shows": upcoming_shows,
+        "past_shows_count": past_shows_count,
+        "upcoming_shows_count": upcoming_shows_count,
     }
     
     data = list(filter(lambda d: d["id"] == venue_id, [resdata]))[0]
