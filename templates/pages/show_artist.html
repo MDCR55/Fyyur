@@ -79,10 +79,10 @@
 	const deleteBtn = document.getElementById('deleteBtn');
 	deleteBtn.onclick = function(e){
 		const id = e.target.dataset['id'];
-		fetch('/artist/' + id, {
+		fetch('/artists/' + id, {
 		  method: 'DELETE'
 		})
-		window.location.href = "/";
+		location.href = '/'
 	}
 </script>
 
@@ -90,7 +90,7 @@
 	const editBtn = document.getElementById('editBtn');
 	editBtn.onclick = function(e){
 		const id = e.target.dataset['id'];
-		location.href = '/artist/' + id + '/edit'
+		location.href = '/artists/' + id + '/edit'
 	}
 </script>
 

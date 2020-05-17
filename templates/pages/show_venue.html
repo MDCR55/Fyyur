@@ -75,7 +75,7 @@
 	</div>
 </section>
 
-<button class="btn btn-danger" id="deleteBtn" type="button"  data-id="{{venue.id}}"> Delete venue </button>
+<button class="btn btn-danger" id="deleteBtn" type="button" data-id="{{venue.id}}"> Delete venue </button>
 <button class="btn btn-default" id="editBtn" type="button" data-id="{{venue.id}}"> Edit venue </button>
 
 <script>
@@ -85,6 +85,7 @@
 		fetch('/venues/' + id, {
 		  method: 'DELETE'
 		})
+		location.href = '/'
 	}
 </script>
 
