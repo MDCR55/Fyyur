@@ -10,6 +10,7 @@ from flask_migrate import Migrate
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import JSON
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
@@ -44,7 +45,7 @@ class Venue(db.Model):
     state               = db.Column(db.String(120))
     address             = db.Column(db.String(120))
     phone               = db.Column(db.String(120))
-    genres              = db.Column(ARRAY(db.String(120)))
+    genres              = db.Column(JSON)
     website             = db.Column(db.String(120))
     seeking_talent      = db.Column(db.String())
     seeking_description = db.Column(db.String())
@@ -63,7 +64,7 @@ class Artist(db.Model):
     city        = db.Column(db.String(120))
     state       = db.Column(db.String(120))
     phone       = db.Column(db.String(120))
-    genres      = db.Column(db.String(120))
+    genres      = db.Column(JSON)
     website     = db.Column(db.String(120))
     seeking_venue       = db.Column(db.String())
     seeking_description = db.Column(db.String())
@@ -174,11 +175,11 @@ def show_venue(venue_id):
     result = result[0]
 
     # TODO: replace with real venue data from the venues table, using venue_id (DONE)
-
+    print(result.genres)
     resdata = {
         "id": result.id,
         "name": result.name,
-        "genres": result.genres,
+        "genres": json.loads(result.genres),
         "address": result.address,
         "city": result.city,
         "state": result.state,
@@ -227,7 +228,7 @@ def create_venue_submission():
         address         = request.form.get("address")
         phone           = request.form.get("phone")
         imageLink       = request.form.get("image_link")
-        genres          = request.form.get("genres")
+        genres          = request.form.getlist("genres")
         facebookLink    = request.form.get("facebook_link")
         website         = request.form.get("website")
         seeking_talent    = request.form.get("facebook_link")
@@ -348,7 +349,7 @@ def show_artist(artist_id):
     resdata = {
         "id": result.id,
         "name": result.name,
-        "genres": result.genres,
+        "genres": json.loads(result.genres),
         "city": result.city,
         "state": result.state,
         "phone": result.phone,
@@ -402,7 +403,7 @@ def edit_artist_submission(artist_id):
     city            = request.form.get('city')
     state           = request.form.get('state')
     phone           = request.form.get('phone')
-    genres          = request.form.get('genres')
+    genres          = request.form.getlist('genres')
     imageLink       = request.form.get('image link')
     facebookLink    = request.form.get('facebook_link')
     website         = request.form.get('website')
@@ -452,11 +453,11 @@ def edit_venue_submission(venue_id):
     city            = request.form.get('city')
     state           = request.form.get('state')
     phone           = request.form.get('phone')
-    genres          = request.form.get('genres')
+    genres          = request.form.getlist('genres')
     imageLink       = request.form.get('image link')
     facebookLink    = request.form.get('facebook_link')
     website         = request.form.get('website')
-    seeking_talent   = request.form.get('seeking_talent')
+    seeking_talent  = request.form.get('seeking_talent')
     seeking_description = request.form.get('seeking_description')
 
 
@@ -500,7 +501,7 @@ def create_artist_submission():
         state               = request.form.get("state")
         phone               = request.form.get("phone")
         imageLink           = request.form.get("image_link")
-        genres              = request.form.get("genres")
+        genres              = request.form.getlist("genres")
         facebookLink        = request.form.get("facebook_link")
         website             = request.form.get("website")
         seeking_venue       = request.form.get("seeking_venue")
@@ -574,7 +575,7 @@ def shows():
     data = []
 
     for show in shows :
-
+        
         v = Venue.query.get(show.venue_id)
         a = Artist.query.get(show.artist_id)
 
