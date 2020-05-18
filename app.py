@@ -11,8 +11,9 @@ from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy import cast, Date
 import logging
-from datetime import date
+from datetime import date,datetime
 from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *  
@@ -179,9 +180,22 @@ def show_venue(venue_id):
     upcoming_shows_count = 0
 
     past_shows = []
+    upcoming_shows = []
 
-    print(datetime.now())
-    upcoming_shows = db.session.query(Shows).join(Artist).filter(Shows.venue_id==venue_id).filter(Shows.start_time > datetime.now()).all()
+    all_shows = Shows.query.all()
+
+    print(all_shows)
+
+    for show in all_shows:
+        if show.venue_id == result.id:
+            show_time = datetime.strptime(show.start_time, '%Y-%m-%d %H:%M:%S')
+            if show_time > datetime.now() :
+                upcoming_shows.append(show)
+            else: 
+                past_shows.append(show)
+            
+    past_shows_count = len(past_shows)
+    upcoming_shows_count = len(upcoming_shows)
     
 
     # TODO: replace with real venue data from the venues table, using venue_id (DONE)
